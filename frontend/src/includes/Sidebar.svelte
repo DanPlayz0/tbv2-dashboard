@@ -24,7 +24,7 @@
           <span class="sidebar-text">Servers</span>
         </div>
       </Navigate>
-      {#if WHITELABEL_SIDEBAR}
+      {#if WHITELABEL_SIDEBAR == true}
       <Navigate to="/whitelabel" styles="sidebar-link">
         <div class="sidebar-element">
           <i class="fas fa-edit sidebar-icon"></i>

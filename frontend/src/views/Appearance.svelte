@@ -1,6 +1,6 @@
 <div class="parent">
   <div class="content">
-    {#if WHITELABEL_SIDEBAR}
+    {#if WHITELABEL_SIDEBAR == true}
     <div class="container">
       <Card footer={false}>
         <span slot="title">Looking for whitelabel?</span>
