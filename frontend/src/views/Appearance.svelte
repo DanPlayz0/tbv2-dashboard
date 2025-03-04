@@ -1,5 +1,6 @@
 <div class="parent">
   <div class="content">
+    {#if WHITELABEL_SIDEBAR}
     <div class="container">
       <Card footer={false}>
         <span slot="title">Looking for whitelabel?</span>
@@ -10,6 +11,7 @@
         </div>
       </Card>
     </div>
+    {/if}
 
     <div class="container">
       <Card footer={false}>
@@ -38,7 +40,7 @@
   import Card from "../components/Card.svelte";
   import {notifyError, notifySuccess, withLoadingScreen} from '../js/util'
   import axios from "axios";
-  import {API_URL} from "../js/constants";
+  import {API_URL,WHITELABEL_SIDEBAR} from "../js/constants";
   import {setDefaultHeaders} from '../includes/Auth.svelte'
   import {Navigate} from "svelte-router-spa";
   import Colour from "../components/form/Colour.svelte";
