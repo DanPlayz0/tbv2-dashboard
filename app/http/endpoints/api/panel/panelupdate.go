@@ -148,13 +148,13 @@ func UpdatePanel(c *gin.Context) {
 
 	newMessageId := existing.MessageId
 
-	if shouldUpdateMessage {
+	if shouldUpdateMessage && existing.ChannelId != nil && existing.MessageId != nil {
 		// delete old message, ignoring error
 		// TODO: Use proper context
-		_ = rest.DeleteMessage(c, botContext.Token, botContext.RateLimiter, existing.ChannelId, existing.MessageId)
+		_ = rest.DeleteMessage(c, botContext.Token, botContext.RateLimiter, *existing.ChannelId, *existing.MessageId)
 
 		messageData := data.IntoPanelMessageData(existing.CustomId, premiumTier > premium.None)
-		newMessageId, err = messageData.send(botContext)
+		*newMessageId, err = messageData.send(botContext)
 		if err != nil {
 			var unwrapped request.RestError
 			if errors.As(err, &unwrapped) {
@@ -163,7 +163,7 @@ func UpdatePanel(c *gin.Context) {
 					return
 				} else if unwrapped.StatusCode == 404 {
 					// Swallow error
-					// TODO: Make channel_id column nullable, and set to null
+					dbclient.Client.Panel.UpdateChannelId(c, existing.PanelId, nil)
 				} else {
 					_ = c.AbortWithError(http.StatusInternalServerError, app.NewServerError(err))
 					return
