@@ -146,7 +146,11 @@ func UpdatePanel(c *gin.Context) {
 		existing.ButtonLabel != data.ButtonLabel ||
 		existing.Disabled != data.Disabled
 
-	newMessageId := existing.MessageId
+	var newMessageId *uint64
+	if existing.ChannelId != nil && data.ChannelId != nil {
+		// old message exists and provided channel exists
+		newMessageId = existing.MessageId
+	}
 
 	if shouldUpdateMessage && existing.ChannelId != nil && existing.MessageId != nil {
 		// delete old message, ignoring error
@@ -155,7 +159,7 @@ func UpdatePanel(c *gin.Context) {
 
 		if data.MessageId != nil && data.ChannelId != nil {
 			messageData := data.IntoPanelMessageData(existing.CustomId, premiumTier > premium.None)
-			*newMessageId, err = messageData.send(botContext)
+			messageId, err := messageData.send(botContext)
 			if err != nil {
 				var unwrapped request.RestError
 				if errors.As(err, &unwrapped) {
@@ -174,6 +178,7 @@ func UpdatePanel(c *gin.Context) {
 					return
 				}
 			}
+			newMessageId = &messageId
 		}
 
 	}
