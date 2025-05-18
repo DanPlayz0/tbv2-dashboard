@@ -153,26 +153,29 @@ func UpdatePanel(c *gin.Context) {
 		// TODO: Use proper context
 		_ = rest.DeleteMessage(c, botContext.Token, botContext.RateLimiter, *existing.ChannelId, *existing.MessageId)
 
-		messageData := data.IntoPanelMessageData(existing.CustomId, premiumTier > premium.None)
-		*newMessageId, err = messageData.send(botContext)
-		if err != nil {
-			var unwrapped request.RestError
-			if errors.As(err, &unwrapped) {
-				if unwrapped.StatusCode == 403 {
-					c.JSON(403, utils.ErrorStr("I do not have permission to send messages in the specified channel"))
-					return
-				} else if unwrapped.StatusCode == 404 {
-					// Swallow error
-					dbclient.Client.Panel.UpdateChannelId(c, existing.PanelId, nil)
+		if data.MessageId != nil && data.ChannelId != nil {
+			messageData := data.IntoPanelMessageData(existing.CustomId, premiumTier > premium.None)
+			*newMessageId, err = messageData.send(botContext)
+			if err != nil {
+				var unwrapped request.RestError
+				if errors.As(err, &unwrapped) {
+					if unwrapped.StatusCode == 403 {
+						c.JSON(403, utils.ErrorStr("I do not have permission to send messages in the specified channel"))
+						return
+					} else if unwrapped.StatusCode == 404 {
+						// Swallow error
+						dbclient.Client.Panel.UpdateChannelId(c, existing.PanelId, nil)
+					} else {
+						_ = c.AbortWithError(http.StatusInternalServerError, app.NewServerError(err))
+						return
+					}
 				} else {
 					_ = c.AbortWithError(http.StatusInternalServerError, app.NewServerError(err))
 					return
 				}
-			} else {
-				_ = c.AbortWithError(http.StatusInternalServerError, app.NewServerError(err))
-				return
 			}
 		}
+
 	}
 
 	// Update welcome message
