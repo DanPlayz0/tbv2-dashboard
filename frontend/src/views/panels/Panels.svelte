@@ -41,14 +41,14 @@
                         <tbody>
                         {#each panels as panel}
                             <tr>
-                                {#if panel.channel_id == null}
+                                {#if panel.channel_id == null || panel.channel_id == "null"}
                                   <td>None</td>
                                 {:else}
                                   <td>#{channels.find((c) => c.id === panel.channel_id)?.name ?? 'Unknown Channel'}</td>
                                 {/if}
                                 <td class="max">{panel.title}</td>
                                 <td>
-                                    <Button disabled={panel.force_disabled || panel.channel_id == null}
+                                    <Button disabled={panel.force_disabled || panel.channel_id == null || panel.channel_id == "null"}
                                             on:click={() => resendPanel(panel.panel_id)}>Resend
                                     </Button>
                                 </td>
