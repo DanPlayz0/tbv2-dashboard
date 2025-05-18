@@ -170,9 +170,9 @@ func CreatePanel(c *gin.Context) {
 	}
 
 	messageData := data.IntoPanelMessageData(customId, premiumTier > premium.None)
-	var msgId *uint64 = nil
+	var newMsgId *uint64
 	if messageData != nil {
-		*msgId, err = messageData.send(botContext)
+		msgId, err := messageData.send(botContext)
 		if err != nil {
 			var unwrapped request.RestError
 			if errors.As(err, &unwrapped) {
@@ -187,6 +187,7 @@ func CreatePanel(c *gin.Context) {
 
 			return
 		}
+		newMsgId = &msgId
 	}
 
 	var emojiId *uint64
@@ -219,7 +220,7 @@ func CreatePanel(c *gin.Context) {
 
 	// Store in DB
 	panel := database.Panel{
-		MessageId:           msgId,
+		MessageId:           newMsgId,
 		ChannelId:           data.ChannelId,
 		GuildId:             guildId,
 		Title:               data.Title,

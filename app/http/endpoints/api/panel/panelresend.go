@@ -76,10 +76,10 @@ func ResendPanel(ctx *gin.Context) {
 		return
 	}
 
-	var msgId *uint64 = nil
+	var newMsgId *uint64
 	messageData := panelIntoMessageData(panel, premiumTier > premium.None)
 	if messageData != nil {
-		*msgId, err = messageData.send(botContext)
+		msgId, err := messageData.send(botContext)
 		if err != nil {
 			var unwrapped request.RestError
 			if errors.As(err, &unwrapped) && unwrapped.StatusCode == 403 {
@@ -90,9 +90,10 @@ func ResendPanel(ctx *gin.Context) {
 
 			return
 		}
+		newMsgId = &msgId
 	}
 
-	if err = dbclient.Client.Panel.UpdateMessageId(ctx, panel.PanelId, msgId); err != nil {
+	if err = dbclient.Client.Panel.UpdateMessageId(ctx, panel.PanelId, newMsgId); err != nil {
 		ctx.JSON(500, utils.ErrorJson(err))
 		return
 	}
